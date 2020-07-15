@@ -17,7 +17,7 @@
       </li>
     </ul>
     <div class="panel" v-show="tab === 1">
-      <form class="form">
+      <form class="form" @submit.prevent="login">
         <label for="login-email">Email</label>
         <input
           type="text"
@@ -93,11 +93,13 @@ export default {
     };
   },
   methods: {
-    login() {
-      console.log(this.loginForm);
+    async login() {
+      await this.$store.dispatch("auth/login", this.loginForm);
+      this.$router.push("/");
     },
-    register() {
-      console.log(this.registerForm);
+    async register() {
+      await this.$store.dispatch("auth/register", this.registerForm);
+      this.$router.push("/");
     }
   }
 };
