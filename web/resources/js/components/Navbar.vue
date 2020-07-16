@@ -1,11 +1,11 @@
 <template>
   <nav class="navbar">
     <RouterLink class="navbar__brand" to="/">
-      CAMP
+      Vuesplash
     </RouterLink>
     <div class="navbar__menu">
       <div v-if="isLogin" class="navbar__item">
-        <button class="button">
+        <button class="button" @click="showForm = !showForm">
           <i class="icon ion-md-add"></i>
           Submit a photo
         </button>
@@ -19,11 +19,21 @@
         </RouterLink>
       </div>
     </div>
+    <PhotoForm v-model="showForm" />
   </nav>
 </template>
 
 <script>
+import PhotoForm from "./PhotoForm.vue";
 export default {
+  components: {
+    PhotoForm
+  },
+  data() {
+    return {
+      showForm: false
+    };
+  },
   computed: {
     isLogin() {
       return this.$store.getters["auth/check"];
@@ -58,5 +68,72 @@ export default {
 .button--link {
   text-decoration: none;
   color: black;
+}
+
+.button {
+  border: 1px solid #dedede;
+  border-radius: 0.25rem;
+  color: #8a8a8a;
+  cursor: pointer;
+  display: inline-block;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  outline: none;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  -webkit-transition: border-color 300ms ease-in-out, color 300ms ease-in-out;
+  transition: border-color 300ms ease-in-out, color 300ms ease-in-out;
+}
+
+.button:hover {
+  border-color: #333;
+  color: inherit;
+}
+
+.button .icon {
+  margin-right: 0.5em;
+}
+
+.button--link {
+  border: 0;
+}
+
+.button--inverse {
+  background: #222;
+  border-color: #222;
+  color: #fff;
+  -webkit-transition: opacity 300ms ease-in-out;
+  transition: opacity 300ms ease-in-out;
+}
+
+.button--inverse:hover {
+  background: #222;
+  color: #fff;
+  opacity: 0.8;
+}
+
+.button--fluid {
+  width: 100%;
+}
+
+.button--like .icon {
+  color: #e4406f;
+}
+
+.button--liked {
+  background: #e4406f;
+  border-color: #e4406f;
+  color: #fff;
+}
+
+.button--liked .icon {
+  color: #fff;
+}
+
+.button--liked:hover {
+  border-color: #e4406f;
+  color: #fff;
+  opacity: 0.8;
 }
 </style>
