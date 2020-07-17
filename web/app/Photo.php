@@ -80,4 +80,6 @@ class Photo extends Model
     {
         return Storage::cloud()->url($this->attributes['filename']);
     }
+
+    protected $perPage = 15;
 }
