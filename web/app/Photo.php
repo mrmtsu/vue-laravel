@@ -3,32 +3,34 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Arr;
 
 class Photo extends Model
 {
     /** プライマリキーの型 */
     protected $keyType = 'string';
 
+    /** IDの桁数 */
+    const ID_LENGTH = 12;
+
+    /** JSONに含めるアクセサ */
+    protected $appends = [
+        'url', 'likes_count', 'liked_by_user',
+    ];
+
     /** JSONに含める属性 */
     protected $visible = [
         'id', 'owner', 'url', 'comments',
+        'likes_count', 'liked_by_user',
     ];
-
-    /** JSONに含める属性 */
-    protected $appends = [
-        'url',
-    ];
-
-    /** IDの桁数 */
-    const ID_LENGTH = 12;
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
 
-        if (! Arr::get($this->attributes, 'id')) {
+        if (! array_get($this->attributes, 'id')) {
             $this->setId();
         }
     }
@@ -64,21 +66,43 @@ class Photo extends Model
     }
 
     /**
-     * リレーションシップ - usersテーブル
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function owner()
-    {
-        return $this->belongsTo('App\User', 'user_id', 'id', 'users');
-    }
-
-    /**
      * アクセサ - url
      * @return string
      */
     public function getUrlAttribute()
     {
         return Storage::cloud()->url($this->attributes['filename']);
+    }
+
+    /**
+     * アクセサ - likes_count
+     * @return int
+     */
+    public function getLikesCountAttribute()
+    {
+        return $this->likes->count();
+    }
+
+    /**
+     * アクセサ - liked_by_user
+     * @return boolean
+     */
+    public function getLikedByUserAttribute()
+    {
+    if (Auth::guest()) {
+    return false;
+    }
+
+    return $this->likes->contains(Auth::user());
+    }
+
+    /**
+     * リレーションシップ - usersテーブル
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function owner()
+    {
+        return $this->belongsTo('App\User', 'user_id', 'id', 'users');
     }
 
     /**
@@ -90,5 +114,12 @@ class Photo extends Model
         return $this->hasMany('App\Comment')->orderBy('id', 'desc');
     }
 
-    protected $perPage = 15;
+    /**
+     * リレーションシップ - usersテーブル
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function likes()
+    {
+        return $this->belongsToMany('App\User', 'likes')->withTimestamps();
+    }
 }
